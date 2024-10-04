@@ -14,5 +14,5 @@ def sudy_nebo_ichy(cislo):
 
     
 
-sudy_nebo_ichy(757575787878523)
-sudy_nebo_ichy(1000009831643102020212)
+sudy_nebo_ichy(757575723)
+sudy_nebo_ichy(100031102020212)
