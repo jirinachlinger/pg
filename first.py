@@ -1,10 +1,18 @@
-def hello():
-    print("Hello World")
+#def hello():
+#    print("Hello World")
 
 
 
-def sudy_lichy(cislo):
-    pass
+def sudy_nebo_ichy(cislo):
+    vysledek = cislo % 2
 
-sudy_lichy(5)
-sudy_lichy(100000)
+
+    if vysledek == 0:
+        print("číslo",cislo,"je sudé")
+    else:
+        print("číslo",cislo,"je liché")
+
+    
+
+sudy_nebo_ichy(757575787878523)
+sudy_nebo_ichy(1000009831643102020212)
