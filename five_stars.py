@@ -36,4 +36,10 @@ def zobraz_pozdrav(jmeno):
     print("ahoj", jm)
 
 jm = input("zdadej jmeno: ")
-zobraz_pozdrav(jm)
+#zobraz_pozdrav(jm)
+
+def sudy_nebo_lichy(cislo):
+    
+
+sudy_nebo_lichy(5)
+sudy_nebo_lichy(100000)
