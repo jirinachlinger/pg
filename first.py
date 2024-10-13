@@ -3,7 +3,7 @@
 
 
 
-def sudy_nebo_ichy(cislo):
+def sudy_nebo_lichy(cislo):
     vysledek = cislo % 2
 
 
@@ -14,6 +14,6 @@ def sudy_nebo_ichy(cislo):
 
     
 
-sudy_nebo_ichy(757575723)
-sudy_nebo_ichy(1000311020212)
+sudy_nebo_lichy(5)
+sudy_nebo_lichy(1000000)
 
