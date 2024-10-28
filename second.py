@@ -9,7 +9,7 @@ def cislo_text(cislo):
     if zadavane_cislo < 10:
         return jednotky[zadavane_cislo]
     elif zadavane_cislo >= 10 and zadavane_cislo < 20:
-        return deset_devatenáct[zadavane_cislo]
+        return deset_devatenáct[zadavane_cislo - 10]
     elif zadavane_cislo >= 20 and zadavane_cislo < 100:
         desitka = zadavane_cislo // 10
         jednotka = zadavane_cislo % 10
