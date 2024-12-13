@@ -1,10 +1,10 @@
 def dec_to_bin(cislo):
-    cislo = int(cislo)
+    cislo = int(cislo)  # Převede vstup na integer, pokud je jako string
     if cislo == 0:
         return "0"
     pow = 0
     for i in range(16):
-        m = 2** i 
+        m = 2 ** i 
         if m > cislo:
             pow = i - 1
             break
@@ -18,6 +18,9 @@ def dec_to_bin(cislo):
             result += "0"
     return result
 
+def dev_to_bin():
+    cislo = 167 
+    return dec_to_bin(cislo)
 
 def test_bin_to_dec():
     assert dec_to_bin("0") == "0"
@@ -28,4 +31,4 @@ def test_bin_to_dec():
     assert dec_to_bin("128") == "10000000"
 
 if __name__ == "__main__":
-    dec_to_bin(120)
+    print(dev_to_bin())
