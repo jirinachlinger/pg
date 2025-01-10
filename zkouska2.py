@@ -1,5 +1,5 @@
 import requests
-
+#Získávání dat z webu
 def convert_to_czk(amount, currency):
     # Stáhování kurzovního lísteku z CNB
     url = "http://www.cnb.cz/cs/financni_trhy/devizovy_trh/kurzy_devizoveho_trhu/denni_kurz.txt"
@@ -7,7 +7,7 @@ def convert_to_czk(amount, currency):
     
     if response.status_code != 200:
         raise ConnectionError("Failed to fetch exchange rates.")
-
+#převod odstavce na jednu dlouhou řádku rozděl čárkami
     rates = response.text.splitlines()
     
     # Hledam kurz pro zadanou měnu
