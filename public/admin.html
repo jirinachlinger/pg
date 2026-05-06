@@ -2,27 +2,112 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Útulek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administrace - Útulek Tlapka</title>
+    <!-- Bootstrap pro design -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js pro vizualizaci dat -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="admin.js"></script>
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h2>Přidat nového mazlíčka</h2>
-        <form id="addAnimalForm" class="bg-white p-4 shadow-sm mb-5">
-            <input type="text" id="name" class="form-control mb-2" placeholder="Jméno zvířete" required>
-            <input type="number" id="age" class="form-control mb-2" placeholder="Věk" required>
-            <input type="url" id="photo" class="form-control mb-2" placeholder="URL odkaz na fotografii" required>
-            <textarea id="description" class="form-control mb-2" rows="3" placeholder="Popis..." required></textarea>
-            <button type="submit" class="btn btn-primary">Přidat do databáze</button>
-            <button type="button" class="btn btn-warning ms-2" onclick="generateNormalDistributionData()">Generovat testovací data</button>
-        </form>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🐾 Útulek Admin</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="index.html">Zpět na web</a>
+            </div>
+        </div>
+    </nav>
 
-        <h2>Správa mazlíčků</h2>
-        <table class="table bg-white shadow-sm">
-            <thead><tr><th>Fotka</th><th>Jméno</th><th>Věk</th><th>Akce</th></tr></thead>
-            <tbody id="admin-animal-list"></tbody>
-        </table>
+    <div class="container mb-5">
+        <div class="row">
+            <!-- Formulář pro přidání/editaci mazlíčka (Create/Update) -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Správa mazlíčka</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addAnimalForm">
+                            <div class="mb-3">
+                                <label class="form-label">Jméno</label>
+                                <input type="text" id="name" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Druh / Plemeno</label>
+                                <input type="text" id="species" class="form-control" placeholder="např. Pes / Zlatý retrívr" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Věk (roky)</label>
+                                <input type="number" id="age" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">URL Fotografie</label>
+                                <input type="url" id="photo" class="form-control" placeholder="https://..." required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Popis</label>
+                                <textarea id="description" class="form-control" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Uložit mazlíčka</button>
+                            <hr>
+                            <!-- Tlačítko pro generování dat s normálním rozdělením věku -->
+                            <button type="button" class="btn btn-outline-warning w-100 btn-sm" onclick="generateNormalDistributionData()">
+                                Generovat testovací data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabulka se seznamem a Grafy -->
+            <div class="col-lg-8">
+                <!-- Sekce s grafy (Volitelné) -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Statistiky útulku</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <canvas id="speciesChart"></canvas>
+                            </div>
+                            <div class="col-md-6">
+                                <canvas id="ageChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabulka pro Delete a View[cite: 8] -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Seznam zvířat v evidenci</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Jméno</th>
+                                        <th>Druh</th>
+                                        <th>Věk</th>
+                                        <th class="text-end">Akce</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-animal-list">
+                                    <!-- Data se načtou z Firebase přes admin.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

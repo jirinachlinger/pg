@@ -1,20 +1,36 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Útulek pro mazlíčky</title>
+    <title>Útulek Tlapka - Mazlíčci k adopci</title>
+    <!-- Bootstrap pro design ze cvičení 3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script defer src="app.js"></script>
+    <style>
+        .card-img-top { height: 250px; object-fit: cover; }
+        .description-truncate { height: 3em; overflow: hidden; transition: height 0.3s; }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h1 class="text-center mb-5">Naši mazlíčci k adopci</h1>
-        <div id="animal-list" class="row"></div>
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">🐾 Útulek Tlapka</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center mb-5">Najděte si nového přítele</h1>
+        <div id="animal-list" class="row">
+            <!-- Mazlíčci se načtou sem přes app.js -->
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p>Hledáme chlupáče v databázi...</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Vyskakovací okno (Modal) pro adopci -->
+    <!-- Modal pro adopci -->
     <div class="modal fade" id="adoptModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -25,16 +41,18 @@
                 <div class="modal-body">
                     <form id="adoptForm">
                         <input type="hidden" id="adoptAnimalId">
-                        <div class="mb-3"><label>Jméno</label><input type="text" id="firstName" class="form-control" required></div>
-                        <div class="mb-3"><label>Příjmení</label><input type="text" id="lastName" class="form-control" required></div>
-                        <div class="mb-3"><label>Pohlaví</label>
-                            <select id="gender" class="form-select" required>
-                                <option value="Muž">Muž</option><option value="Žena">Žena</option><option value="Jiné">Jiné</option>
+                        <div class="mb-3"><label class="form-label">Jméno</label><input type="text" id="firstName" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Příjmení</label><input type="text" id="lastName" class="form-control" required></div>
+                        <div class="mb-3">
+                            <label class="form-label">Pohlaví</label>
+                            <select id="gender" class="form-select">
+                                <option value="Muž">Muž</option>
+                                <option value="Žena">Žena</option>
                             </select>
                         </div>
-                        <div class="mb-3"><label>Adresa</label><input type="text" id="address" class="form-control" required></div>
-                        <div class="mb-3"><label>Telefonní číslo</label><input type="tel" id="phone" class="form-control" required></div>
-                        <button type="submit" class="btn btn-success w-100">Odeslat žádost</button>
+                        <div class="mb-3"><label class="form-label">Adresa</label><input type="text" id="address" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" id="phone" class="form-control" required></div>
+                        <button type="submit" class="btn btn-success w-100">Odeslat závaznou žádost</button>
                     </form>
                 </div>
             </div>
