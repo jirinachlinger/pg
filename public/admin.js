@@ -1,6 +1,23 @@
 let speciesChart, ageChart;
 
-// Načtení dat a inicializace všeho
+// Pomocná funkce: Převod vybraného souboru na Base64 řetězec[cite: 5]
+const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
+
+// Zobrazení náhledu po výběru souboru
+document.getElementById('photoFile').addEventListener('change', async function() {
+    if (this.files && this.files[0]) {
+        const base64 = await toBase64(this.files[0]);
+        document.getElementById('previewImg').src = base64;
+        document.getElementById('photoPreview').style.display = 'block';
+    }
+});
+
+// Inicializace administrace
 async function initAdmin() {
     const data = await loadAdminAnimals();
     updateCharts(data);
@@ -17,12 +34,12 @@ async function loadAdminAnimals() {
         const animal = data[key];
         list.innerHTML += `
             <tr>
-                <td><img src="${animal.photo}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded shadow-sm"></td>
+                <td><img src="${animal.photo}" style="width: 40px; height: 40px; object-fit: cover;" class="rounded"></td>
                 <td><strong>${animal.name}</strong></td>
                 <td><span class="badge bg-secondary">${animal.species}</span></td>
                 <td>${animal.age} let</td>
                 <td class="text-end">
-                    <button class="btn btn-danger btn-sm" onclick="deleteAnimal('${key}')">Smazat</button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteAnimal('${key}')">Smazat</button>
                 </td>
             </tr>
         `;
@@ -30,14 +47,18 @@ async function loadAdminAnimals() {
     return data;
 }
 
-// Přidání nového zvířete (Create)[cite: 8]
+// Přidání nového zvířete (Create s Base64 fotkou)[cite: 5, 8]
 document.getElementById('addAnimalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const fileInput = document.getElementById('photoFile');
+    const base64Photo = await toBase64(fileInput.files[0]);
+
     const data = {
         name: document.getElementById('name').value,
         species: document.getElementById('species').value,
         age: parseInt(document.getElementById('age').value),
-        photo: document.getElementById('photo').value,
+        photo: base64Photo, // Tady posíláme Base64 místo URL[cite: 5]
         description: document.getElementById('description').value
     };
 
@@ -47,14 +68,15 @@ document.getElementById('addAnimalForm').addEventListener('submit', async (e) =>
         body: JSON.stringify(data)
     });
 
-    alert('Mazlíček uložen!');
+    alert('Zvířátko uloženo!');
     document.getElementById('addAnimalForm').reset();
+    document.getElementById('photoPreview').style.display = 'none';
     initAdmin();
 });
 
 // Smazání zvířete (Delete)[cite: 8]
 async function deleteAnimal(id) {
-    if (confirm('Opravdu smazat z evidence?')) {
+    if (confirm('Opravdu chcete záznam smazat?')) {
         await fetch('/api/animals', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -64,121 +86,57 @@ async function deleteAnimal(id) {
     }
 }
 
-// Funkce pro vizualizaci dat pomocí Chart.js
+// Vizualizace dat (Chart.js)[cite: 6]
 function updateCharts(data) {
     const speciesCounts = {};
-    const ageCounts = { '1-2': 0, '3-4': 0, '5+': 0 };
+    const ageDist = { 'Mladí (0-2)': 0, 'Střední (3-4)': 0, 'Starší (5+)': 0 };
 
     for (const key in data) {
-        const animal = data[key];
-        // Data pro koláčový graf druhů
-        speciesCounts[animal.species] = (speciesCounts[animal.species] || 0) + 1;
-        
-        // Data pro sloupcový graf věku
-        if (animal.age <= 2) ageCounts['1-2']++;
-        else if (animal.age <= 4) ageCounts['3-4']++;
-        else ageCounts['5+']++;
+        const a = data[key];
+        speciesCounts[a.species] = (speciesCounts[a.species] || 0) + 1;
+        if (a.age <= 2) ageDist['Mladí (0-2)']++;
+        else if (a.age <= 4) ageDist['Střední (3-4)']++;
+        else ageDist['Starší (5+)']++;
     }
 
-    // Zničení starých grafů při aktualizaci
     if (speciesChart) speciesChart.destroy();
     if (ageChart) ageChart.destroy();
 
-    // Koláčový graf - Druhy[cite: 6]
     speciesChart = new Chart(document.getElementById('speciesChart'), {
         type: 'pie',
         data: {
             labels: Object.keys(speciesCounts),
-            datasets: [{
-                data: Object.values(speciesCounts),
-                backgroundColor: ['#0d6efd', '#6610f2', '#6f42c1', '#d63384']
-            }]
+            datasets: [{ data: Object.values(speciesCounts), backgroundColor: ['#0d6efd', '#ffc107', '#198754'] }]
         },
         options: { plugins: { title: { display: true, text: 'Zastoupení druhů' } } }
     });
 
-    // Sloupcový graf - Věk (zde se projeví normální rozdělení)[cite: 6]
     ageChart = new Chart(document.getElementById('ageChart'), {
         type: 'bar',
         data: {
-            labels: Object.keys(ageCounts),
-            datasets: [{
-                label: 'Počet zvířat',
-                data: Object.values(ageCounts),
-                backgroundColor: '#198754'
-            }]
+            labels: Object.keys(ageDist),
+            datasets: [{ label: 'Počet', data: Object.values(ageDist), backgroundColor: '#6c757d' }]
         },
-        options: { plugins: { title: { display: true, text: 'Věková struktura' } } }
+        options: { plugins: { title: { display: true, text: 'Věk (Normální rozdělení)' } } }
     });
 }
 
-// Pomocná funkce pro převod obrázku na Base64 řetězec
-function toBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-    });
-}
-
-// Náhled obrázku při výběru
-document.getElementById('photoFile').addEventListener('change', async function() {
-    const file = this.files[0];
-    if (file) {
-        const base64 = await toBase64(file);
-        const preview = document.getElementById('photoPreview');
-        document.getElementById('previewImg').src = base64;
-        preview.style.display = 'block';
-    }
-});
-
-// Upravené odesílání formuláře
-document.getElementById('addAnimalForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const fileInput = document.getElementById('photoFile');
-    const photoBase64 = await toBase64(fileInput.files[0]); // Převod na Base64
-
-    const data = {
-        name: document.getElementById('name').value,
-        species: document.getElementById('species').value,
-        age: parseInt(document.getElementById('age').value),
-        photo: photoBase64, // Uložíme Base64 řetězec místo URL
-        description: document.getElementById('description').value
-    };
-
-    // Odeslání do databáze (POST metoda)[cite: 8]
-    await fetch('/api/animals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-    });
-
-    alert('Mazlíček i s fotkou byl uložen!');
-    document.getElementById('addAnimalForm').reset();
-    document.getElementById('photoPreview').style.display = 'none';
-    initAdmin(); // Aktualizace tabulky a grafů[cite: 6]
-});
-
-// Generování testovacích dat pro simulaci normálního rozdělení věku
+// Generátor testovacích dat (Normální rozdělení věku)
 async function generateNormalDistributionData() {
-    // Věk rozložený podle Gaussovy křivky kolem středu 3 roky
-    const normalAges = [1, 2, 2, 3, 3, 3, 3, 4, 4, 5];
-    for (let i = 0; i < normalAges.length; i++) {
+    const ages = [1, 2, 2, 3, 3, 3, 3, 4, 4, 5]; 
+    for (let i = 0; i < ages.length; i++) {
         await fetch('/api/animals', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: `Mazlíček ${i + 1}`,
+                name: `Test ${i+1}`,
                 species: i % 2 === 0 ? "Pes" : "Kočka",
-                age: normalAges[i],
-                photo: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=300",
-                description: "Tento profil byl automaticky vygenerován pro testování statistik a zobrazení normálního rozdělení věku v grafu."
+                age: ages[i],
+                photo: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+                description: "Automatický popis pro testování normálního rozdělení."
             })
         });
     }
-    alert('10 testovacích záznamů nahráno!');
     initAdmin();
 }
 

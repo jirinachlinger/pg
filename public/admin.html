@@ -4,25 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Administrace - Útulek Tlapka</title>
-    <!-- Bootstrap pro design -->
+    <!-- Bootstrap pro design ze cvičení 3[cite: 7] -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js pro vizualizaci dat -->
+    <!-- Chart.js pro vizualizaci dat[cite: 6] -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="admin.js"></script>
 </head>
 <body class="bg-light">
+    <!-- Navigace s tlačítkem zpět na web[cite: 5] -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="index.html">🐾 Útulek Admin</a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="index.html">Zpět na web</a>
+            <a class="navbar-brand" href="#">🐾 Útulek Admin</a>
+            <div class="ms-auto">
+                <a href="index.html" class="btn btn-outline-light btn-sm">Zpět na hlavní web</a>
             </div>
         </div>
     </nav>
 
     <div class="container mb-5">
         <div class="row">
-            <!-- Formulář pro přidání/editaci mazlíčka (Create/Update) -->
+            <!-- Formulář pro CRUD operace[cite: 8] -->
             <div class="col-lg-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
@@ -42,17 +43,20 @@
                                 <label class="form-label">Věk (roky)</label>
                                 <input type="number" id="age" class="form-control" required>
                             </div>
+                            <!-- OPRAVENO: Nahrávání souboru místo URL[cite: 7] -->
                             <div class="mb-3">
-                                <label class="form-label">URL Fotografie</label>
-                                <input type="url" id="photo" class="form-control" placeholder="https://..." required>
+                                <label class="form-label">Fotografie (nahrát soubor)</label>
+                                <input type="file" id="photoFile" class="form-control" accept="image/*" required>
+                                <div id="photoPreview" class="mt-2" style="display:none;">
+                                    <img id="previewImg" src="" style="max-height: 100px;" class="rounded border shadow-sm">
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Popis</label>
                                 <textarea id="description" class="form-control" rows="4" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Uložit mazlíčka</button>
+                            <button type="submit" class="btn btn-primary w-100">Uložit do databáze</button>
                             <hr>
-                            <!-- Tlačítko pro generování dat s normálním rozdělením věku -->
                             <button type="button" class="btn btn-outline-warning w-100 btn-sm" onclick="generateNormalDistributionData()">
                                 Generovat testovací data
                             </button>
@@ -61,26 +65,20 @@
                 </div>
             </div>
 
-            <!-- Tabulka se seznamem a Grafy -->
+            <!-- Tabulka a Statistiky[cite: 6, 8] -->
             <div class="col-lg-8">
-                <!-- Sekce s grafy (Volitelné) -->
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white">
                         <h5 class="mb-0">Statistiky útulku</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <canvas id="speciesChart"></canvas>
-                            </div>
-                            <div class="col-md-6">
-                                <canvas id="ageChart"></canvas>
-                            </div>
+                            <div class="col-md-6"><canvas id="speciesChart"></canvas></div>
+                            <div class="col-md-6"><canvas id="ageChart"></canvas></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tabulka pro Delete a View[cite: 8] -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-white">
                         <h5 class="mb-0">Seznam zvířat v evidenci</h5>
@@ -97,9 +95,7 @@
                                         <th class="text-end">Akce</th>
                                     </tr>
                                 </thead>
-                                <tbody id="admin-animal-list">
-                                    <!-- Data se načtou z Firebase přes admin.js -->
-                                </tbody>
+                                <tbody id="admin-animal-list"></tbody>
                             </table>
                         </div>
                     </div>
@@ -107,7 +103,6 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
