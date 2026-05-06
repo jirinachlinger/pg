@@ -1,11 +1,8 @@
-// Globální proměnné
 let speciesChart, ageChart;
 let editId = null; 
-let allAnimals = {}; // Slouží k uchování dat o zvířatech pro párování s žádostmi o adopci
+let allAnimals = {}; 
 
-// ==========================================
-// 1. PŘIHLAŠOVÁNÍ DO ADMINISTRACE[cite: 5]
-// ==========================================
+// --- PŘIHLAŠOVÁNÍ ---[cite: 5]
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const user = document.getElementById('adminUser').value;
@@ -19,24 +16,20 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     const result = await response.json();
     if (result.success) {
-        // Skryjeme přihlášení a zobrazíme admin panel
         document.getElementById('loginSection').style.display = 'none';
         document.getElementById('adminContent').style.display = 'block';
-        initAdmin(); // Spustíme načítání dat až po úspěšném přihlášení
+        initAdmin(); 
     } else {
-        alert('Chybné přihlašovací jméno nebo heslo!');
+        alert('Chybné jméno nebo heslo!');
     }
 });
 
-// Hlavní spouštěcí funkce (volá se po přihlášení a po každé změně)
 async function initAdmin() {
     await loadAdminAnimals();
     await loadAdoptions();
 }
 
-// ==========================================
-// 2. POMOCNÉ FUNKCE (Obrázky)[cite: 5]
-// ==========================================
+// --- BASE 64 ---[cite: 5]
 const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -44,7 +37,6 @@ const toBase64 = file => new Promise((resolve, reject) => {
     reader.onerror = error => reject(error);
 });
 
-// Náhled obrázku po výběru souboru
 document.getElementById('photoFile').addEventListener('change', async function() {
     if (this.files && this.files[0]) {
         const base64 = await toBase64(this.files[0]);
@@ -53,25 +45,21 @@ document.getElementById('photoFile').addEventListener('change', async function()
     }
 });
 
-// ==========================================
-// 3. SPRÁVA ZVÍŘAT (CRUD)[cite: 8]
-// ==========================================
-
-// Načtení zvířat z API a vykreslení do tabulky (Read)
+// --- SPRÁVA ZVÍŘAT ---[cite: 8]
 async function loadAdminAnimals() {
     const response = await fetch('/api/animals');
     allAnimals = await response.json() || {}; 
-    
     const list = document.getElementById('admin-animal-list');
     list.innerHTML = '';
 
     for (const key in allAnimals) {
         const animal = allAnimals[key];
-        
-        // Formátování data
         const dateStr = animal.dateArrived ? new Date(animal.dateArrived).toLocaleDateString('cs-CZ') : 'Neznámé';
-        // Zvýraznění, pokud už je zvíře adoptované
-        const statusBadge = animal.adopted ? `<span class="badge bg-success ms-2">Adoptováno</span>` : '';
+        
+        // Vizuální odlišení stavů v tabulce
+        let statusBadge = '';
+        if (animal.adopted) statusBadge = `<span class="badge bg-success ms-2">Adoptováno</span>`;
+        else if (animal.pending) statusBadge = `<span class="badge bg-warning text-dark ms-2">Rezervováno</span>`;
 
         list.innerHTML += `
             <tr class="${animal.adopted ? 'table-light text-muted' : ''}">
@@ -89,19 +77,15 @@ async function loadAdminAnimals() {
             </tr>
         `;
     }
-    
-    updateCharts(allAnimals); // Po načtení zvířat rovnou aktualizujeme grafy
+    updateCharts(allAnimals); 
 }
 
-// Odeslání formuláře pro Přidání (POST) nebo Úpravu (PATCH)[cite: 3, 8]
 document.getElementById('addAnimalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const fileInput = document.getElementById('photoFile');
     let photoData = null;
-    if (fileInput.files.length > 0) {
-        photoData = await toBase64(fileInput.files[0]);
-    }
+    if (fileInput.files.length > 0) photoData = await toBase64(fileInput.files[0]);
 
     const data = {
         name: document.getElementById('name').value,
@@ -122,12 +106,11 @@ document.getElementById('addAnimalForm').addEventListener('submit', async (e) =>
         body: JSON.stringify(data)
     });
 
-    alert(editId ? 'Záznam byl aktualizován!' : 'Nový mazlíček byl přidán!');
+    alert(editId ? 'Záznam byl aktualizován!' : 'Nový mazlíček přidán!');
     resetForm();
     initAdmin();
 });
 
-// Příprava formuláře na úpravu existujícího záznamu[cite: 8]
 function editAnimal(id) {
     const animal = allAnimals[id];
     document.getElementById('name').value = animal.name;
@@ -144,11 +127,9 @@ function editAnimal(id) {
     document.getElementById('submitBtn').innerText = "Aktualizovat údaje";
     document.getElementById('submitBtn').className = "btn btn-success w-100 fw-bold";
     document.getElementById('cancelEdit').style.display = "block";
-    
     window.scrollTo(0, 0); 
 }
 
-// Návrat formuláře do výchozího stavu
 function resetForm() {
     editId = null;
     document.getElementById('addAnimalForm').reset();
@@ -159,35 +140,24 @@ function resetForm() {
     document.getElementById('cancelEdit').style.display = "none";
 }
 
-// Smazání zvířete (DELETE)[cite: 8]
 async function deleteAnimal(id) {
-    if (confirm('Opravdu chcete tento záznam trvale smazat?')) {
-        await fetch('/api/animals', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
+    if (confirm('Trvale smazat?')) {
+        await fetch('/api/animals', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
         initAdmin();
     }
 }
 
-// ==========================================
-// 4. SPRÁVA ADOPCÍ[cite: 8]
-// ==========================================
-
-// Načtení žádostí o adopci
+// --- SPRÁVA ADOPCÍ ---[cite: 8]
 async function loadAdoptions() {
     const response = await fetch('/api/adoptions');
     const adoptions = await response.json() || {};
     const list = document.getElementById('admin-adoptions-list');
     list.innerHTML = '';
-
     let hasRequests = false;
 
     for (const key in adoptions) {
         hasRequests = true;
         const req = adoptions[key];
-        // Najdeme jméno zvířete z naší globální proměnné allAnimals
         const animalName = allAnimals[req.animalId] ? allAnimals[req.animalId].name : "Neznámé zvíře";
         
         list.innerHTML += `
@@ -196,42 +166,26 @@ async function loadAdoptions() {
                 <td><small>📞 ${req.phone}<br>🏠 ${req.address}</small></td>
                 <td class="text-end">
                     <button class="btn btn-success btn-sm mb-1 w-100" onclick="approveAdoption('${key}', '${req.animalId}')">Potvrdit</button>
-                    <button class="btn btn-danger btn-sm w-100" onclick="rejectAdoption('${key}')">Odmítnout</button>
+                    <!-- ZDE předáváme i animalId pro správné uvolnění zvířete -->
+                    <button class="btn btn-danger btn-sm w-100" onclick="rejectAdoption('${key}', '${req.animalId}')">Odmítnout</button>
                 </td>
             </tr>
         `;
     }
 
-    if (!hasRequests) {
-        list.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Momentálně nejsou žádné nové žádosti.</td></tr>';
-    }
+    if (!hasRequests) list.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Žádné nové žádosti.</td></tr>';
 }
 
-// Potvrzení adopce: Nastaví příznak zvířeti a smaže žádost[cite: 3, 8]
+// POTVRZENÍ ADOPCE[cite: 3, 8]
 async function approveAdoption(adoptionId, animalId) {
-    if (confirm('Opravdu chcete adopci potvrdit? Zvíře bude na webu označeno, že našlo domov.')) {
-        // 1. Zvířeti přidáme vlastnost adopted: true (PATCH)
+    if (confirm('Potvrdit adopci? Zvíře bude trvale označeno, že našlo domov.')) {
+        // Zvířeti nastavíme adoptováno a zrušíme rezervaci
         await fetch('/api/animals', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: animalId, adopted: true })
+            body: JSON.stringify({ id: animalId, adopted: true, pending: false })
         });
         
-        // 2. Žádost vymažeme ze seznamu (DELETE)
-        await fetch('/api/adoptions', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: adoptionId })
-        });
-        
-        alert('Adopce byla úspěšně potvrzena!');
-        initAdmin();
-    }
-}
-
-// Zamítnutí adopce: Smaže žádost bez ovlivnění zvířete[cite: 8]
-async function rejectAdoption(adoptionId) {
-    if (confirm('Zamítnout tuto žádost o adopci?')) {
         await fetch('/api/adoptions', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
@@ -241,9 +195,27 @@ async function rejectAdoption(adoptionId) {
     }
 }
 
-// ==========================================
-// 5. GRAFY A VIZUALIZACE[cite: 6]
-// ==========================================
+// ODMÍTNUTÍ ADOPCE[cite: 3, 8]
+async function rejectAdoption(adoptionId, animalId) {
+    if (confirm('Zamítnout tuto žádost? Zvíře bude na webu opět volné k mání.')) {
+        // Zvířeti zrušíme příznak rezervace (pending: false), takže je zase dostupné!
+        await fetch('/api/animals', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: animalId, pending: false })
+        });
+
+        // Smažeme žádost
+        await fetch('/api/adoptions', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: adoptionId })
+        });
+        initAdmin();
+    }
+}
+
+// --- GRAFY A TESTOVACÍ DATA (Normální rozdělení) ---[cite: 6]
 function updateCharts(data) {
     const speciesCounts = {};
     const ageDist = { 'Mladí (0-2)': 0, 'Střední (3-4)': 0, 'Starší (5+)': 0 };
@@ -251,7 +223,6 @@ function updateCharts(data) {
     for (const key in data) {
         const a = data[key];
         speciesCounts[a.species] = (speciesCounts[a.species] || 0) + 1;
-        
         if (a.age <= 2) ageDist['Mladí (0-2)']++;
         else if (a.age <= 4) ageDist['Střední (3-4)']++;
         else ageDist['Starší (5+)']++;
@@ -262,28 +233,19 @@ function updateCharts(data) {
 
     speciesChart = new Chart(document.getElementById('speciesChart'), {
         type: 'pie',
-        data: {
-            labels: Object.keys(speciesCounts),
-            datasets: [{ data: Object.values(speciesCounts), backgroundColor: ['#0d6efd', '#ffc107', '#198754'] }]
-        },
+        data: { labels: Object.keys(speciesCounts), datasets: [{ data: Object.values(speciesCounts), backgroundColor: ['#0d6efd', '#ffc107', '#198754'] }] },
         options: { plugins: { title: { display: true, text: 'Zastoupení druhů v útulku' } } }
     });
 
     ageChart = new Chart(document.getElementById('ageChart'), {
         type: 'bar',
-        data: {
-            labels: Object.keys(ageDist),
-            datasets: [{ label: 'Počet zvířat', data: Object.values(ageDist), backgroundColor: '#6c757d' }]
-        },
+        data: { labels: Object.keys(ageDist), datasets: [{ label: 'Počet zvířat', data: Object.values(ageDist), backgroundColor: '#6c757d' }] },
         options: { plugins: { title: { display: true, text: 'Věková struktura (Normální rozdělení)' } } }
     });
 }
 
-// ==========================================
-// 6. TESTOVACÍ DATA (Normální rozdělení)
-// ==========================================
 async function generateNormalDistributionData() {
-    // Věk rozložen do tvaru Gaussovy křivky pro demonstraci
+    // Věk je rozvržen tak, aby tvořil přesnou Gaussovu křivku (normální rozdělení)
     const normalAges = [1, 2, 2, 3, 3, 3, 3, 4, 4, 5]; 
     const today = new Date().toISOString().split('T')[0];
 
@@ -297,11 +259,12 @@ async function generateNormalDistributionData() {
                 age: normalAges[i],
                 dateArrived: today,
                 adopted: false,
+                pending: false,
                 photo: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
-                description: "Profil pro otestování grafů a normálního rozdělení."
+                description: "Testovací profil."
             })
         });
     }
-    alert("Testovací data ve tvaru normálního rozdělení nahrána!");
+    alert("Testovací data ve tvaru normálního rozdělení byla nahrána!");
     initAdmin();
 }
