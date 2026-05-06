@@ -112,6 +112,55 @@ function updateCharts(data) {
     });
 }
 
+// Pomocná funkce pro převod obrázku na Base64 řetězec
+function toBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+    });
+}
+
+// Náhled obrázku při výběru
+document.getElementById('photoFile').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (file) {
+        const base64 = await toBase64(file);
+        const preview = document.getElementById('photoPreview');
+        document.getElementById('previewImg').src = base64;
+        preview.style.display = 'block';
+    }
+});
+
+// Upravené odesílání formuláře
+document.getElementById('addAnimalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('photoFile');
+    const photoBase64 = await toBase64(fileInput.files[0]); // Převod na Base64
+
+    const data = {
+        name: document.getElementById('name').value,
+        species: document.getElementById('species').value,
+        age: parseInt(document.getElementById('age').value),
+        photo: photoBase64, // Uložíme Base64 řetězec místo URL
+        description: document.getElementById('description').value
+    };
+
+    // Odeslání do databáze (POST metoda)[cite: 8]
+    await fetch('/api/animals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    alert('Mazlíček i s fotkou byl uložen!');
+    document.getElementById('addAnimalForm').reset();
+    document.getElementById('photoPreview').style.display = 'none';
+    initAdmin(); // Aktualizace tabulky a grafů[cite: 6]
+});
+
 // Generování testovacích dat pro simulaci normálního rozdělení věku
 async function generateNormalDistributionData() {
     // Věk rozložený podle Gaussovy křivky kolem středu 3 roky
