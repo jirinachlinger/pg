@@ -3,66 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Útulek Tlapka - Mazlíčci k adopci</title>
-    <!-- Bootstrap pro design ze cvičení 3[cite: 7] -->
+    <title>Útulek Tlapka | Najděte si parťáka</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script defer src="app.js"></script>
     <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
+        .hero-section { background: linear-gradient(135deg, #0d6efd 0%, #00d2ff 100%); color: white; padding: 60px 0; border-radius: 0 0 50px 50px; margin-bottom: 40px; }
+        .card { border: none; border-radius: 20px; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
         .card-img-top { height: 250px; object-fit: cover; }
-        .description-truncate { height: 3em; overflow: hidden; transition: height 0.3s; }
+        .badge-date { font-size: 0.8rem; background: #e9ecef; color: #495057; padding: 5px 10px; border-radius: 10px; }
+        .description-truncate { height: 3.6em; overflow: hidden; font-size: 0.9rem; color: #6c757d; }
     </style>
 </head>
-<body class="bg-light">
-    <!-- Jednotná navigace s odkazem na Administraci -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container">
-            <span class="navbar-brand mb-0 h1">🐾 Útulek Tlapka</span>
-            <div class="ms-auto">
-                <a href="admin.html" class="btn btn-outline-light btn-sm">Administrace</a>
+<body>
+    <header class="hero-section shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold">🐾 Útulek Tlapka</h1>
+                <p class="lead">Místo, kde začínají nová přátelství.</p>
             </div>
+            <a href="admin.html" class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">Admin Panel</a>
         </div>
-    </nav>
+    </header>
 
-    <div class="container">
-        <h1 class="text-center mb-5">Najděte si nového přítele</h1>
-        <div id="animal-list" class="row">
-            <!-- Mazlíčci se načtou sem přes app.js[cite: 3, 5] -->
-            <div class="text-center">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p>Hledáme chlupáče v databázi...</p>
+    <div class="container mb-5">
+        <div id="animal-list" class="row g-4">
+            <!-- Mazlíčci se načtou sem[cite: 5, 7] -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-grow text-primary" role="status"></div>
+                <p class="mt-3">Připravujeme seznam našich svěřenců...</p>
             </div>
         </div>
     </div>
 
-    <!-- Modal pro adopci[cite: 5, 7] -->
+    <!-- Modal pro adopci[cite: 5] -->
     <div class="modal fade" id="adoptModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Žádost o adopci</h5>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Žádost o adopci</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="adoptForm">
                         <input type="hidden" id="adoptAnimalId">
-                        <div class="mb-3"><label class="form-label">Jméno</label><input type="text" id="firstName" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Příjmení</label><input type="text" id="lastName" class="form-control" required></div>
-                        <div class="mb-3">
-                            <label class="form-label">Pohlaví</label>
-                            <select id="gender" class="form-select">
-                                <option value="Muž">Muž</option>
-                                <option value="Žena">Žena</option>
-                            </select>
+                        <div class="row g-3">
+                            <div class="col-md-6"><input type="text" id="firstName" class="form-control rounded-3" placeholder="Jméno" required></div>
+                            <div class="col-md-6"><input type="text" id="lastName" class="form-control rounded-3" placeholder="Příjmení" required></div>
+                            <div class="col-12"><input type="text" id="address" class="form-control rounded-3" placeholder="Adresa bydliště" required></div>
+                            <div class="col-12"><input type="tel" id="phone" class="form-control rounded-3" placeholder="Telefonní číslo" required></div>
                         </div>
-                        <div class="mb-3"><label class="form-label">Adresa</label><input type="text" id="address" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Telefon</label><input type="tel" id="phone" class="form-control" required></div>
-                        <button type="submit" class="btn btn-success w-100">Odeslat závaznou žádost</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 rounded-pill fw-bold">Odeslat zájem o parťáka</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
